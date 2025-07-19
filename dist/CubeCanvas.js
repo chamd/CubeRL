@@ -10,7 +10,7 @@ class CubeCanvas {
         if (!ctx)
             throw new Error("Context not found");
         this.ctx = ctx;
-        this.ctx.fillStyle = "#000";
+        this.ctx.fillStyle = "#fff";
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
     _getHEX(color) {
@@ -27,5 +27,7 @@ class CubeCanvas {
     draw(x, y, color) {
         this.ctx.fillStyle = this._getHEX(color);
         this.ctx.fillRect(x * this.BLOCK_SIZE, y * this.BLOCK_SIZE, this.BLOCK_SIZE, this.BLOCK_SIZE);
+        this.ctx.strokeStyle = "#000";
+        this.ctx.strokeRect(x * this.BLOCK_SIZE, y * this.BLOCK_SIZE, this.BLOCK_SIZE, this.BLOCK_SIZE);
     }
 }

@@ -14,7 +14,6 @@ class CubeNavigator {
         button.textContent = rotation;
         button.onclick = () => {
             this.cube.rotate(rotation);
-            this.cube.display();
         };
         this.nav.appendChild(button);
     }

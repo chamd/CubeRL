@@ -28,11 +28,21 @@ class Piece {
             }
             else {
                 const leftOri = ["C1", "C2", "C4", "C7"];
-                if (leftOri.includes(this.pos)) {
-                    return (this.ori + 2) % 3;
+                if (rotation === "R" || rotation === "L") {
+                    if (leftOri.includes(this.pos)) {
+                        return (this.ori + 2) % 3;
+                    }
+                    else {
+                        return (this.ori + 1) % 3;
+                    }
                 }
                 else {
-                    return (this.ori + 1) % 3;
+                    if (!leftOri.includes(this.pos)) {
+                        return (this.ori + 2) % 3;
+                    }
+                    else {
+                        return (this.ori + 1) % 3;
+                    }
                 }
             }
         }
