@@ -55,5 +55,7 @@ abstract class Piece {
     }
   }
 
+  abstract clone(): Piece;
+  
   abstract isCorner(): boolean
 }

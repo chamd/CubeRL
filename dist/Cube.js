@@ -1,37 +1,20 @@
 "use strict";
 class Cube {
-    constructor(cubeCanvas) {
-        this.cubeCanvas = cubeCanvas;
+    constructor() {
         this.pieces = [];
         for (let i = 0; i < 8; i++) {
-            const id = "C" + i; // 추후 prefix가 없어질 수 있음
+            const id = "C" + i;
             const newCorner = new Corner(id);
             this.pieces.push(newCorner);
         }
         for (let i = 0; i < 12; i++) {
-            const id = "E" + i; // 추후 prefix가 없어질 수 있음
+            const id = "E" + i;
             const newEdge = new Edge(id);
             this.pieces.push(newEdge);
         }
-        this._display();
     }
     getPiece(pos) {
         return this.pieces.find(o => o.pos === pos);
-    }
-    _display() {
-        this.cubeCanvas.draw(4, 1, "W");
-        this.cubeCanvas.draw(1, 4, "O");
-        this.cubeCanvas.draw(4, 4, "G");
-        this.cubeCanvas.draw(7, 4, "R");
-        this.cubeCanvas.draw(10, 4, "B");
-        this.cubeCanvas.draw(4, 7, "Y");
-        for (const piece of this.pieces) {
-            for (let i = 0; i < ID_POS_MAP[piece.pos].length; i++) {
-                const pos = ID_POS_MAP[piece.pos][i];
-                const color = COLOR_MAP[piece.id][(i + piece.ori) % ID_POS_MAP[piece.pos].length];
-                this.cubeCanvas.draw(pos[0], pos[1], color);
-            }
-        }
     }
     _rotate(rotation, before, after) {
         const movePieces = before.map(pos => {
@@ -40,12 +23,13 @@ class Cube {
                 throw new Error(`Piece at ${pos} not found`);
             return piece;
         });
+        const clones = movePieces.map(o => o.clone());
         for (let i = 0; i < movePieces.length; i++) {
             const piece = movePieces[i];
             const ori = piece.nextOrientation(rotation);
             piece.moveTo(after[i], ori);
         }
-        this._display();
+        return { before: clones, after: movePieces };
     }
     rotate(rotation) {
         let before;
@@ -77,24 +61,7 @@ class Cube {
                 break;
             default: throw new Error("Invalid rotation");
         }
-        this._rotate(rotation, before, after);
-    }
-    rotateAll(rotations, delay) {
-        const rotationArray = rotations.split(" ");
-        for (let i = 0; i < rotationArray.length; i++) {
-            setTimeout(() => {
-                this.rotate(rotationArray[i]);
-            }, delay * i);
-        }
-    }
-    scramble(count, delay) {
-        const rotations = ["R", "L", "F", "B", "U", "D"];
-        for (let i = 0; i < count; i++) {
-            setTimeout(() => {
-                const random = Math.floor(Math.random() * rotations.length);
-                this.rotate(rotations[random]);
-            }, delay * i);
-        }
+        return this._rotate(rotation, before, after);
     }
     isFit() {
         let isFit = true;

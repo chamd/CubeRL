@@ -1,52 +1,37 @@
+type AffectedPieces = {
+  before: Piece[],
+  after: Piece[]
+}
+
 class Cube {
   pieces: Piece[];
-  cubeCanvas: CubeCanvas;
 
-  constructor(cubeCanvas: CubeCanvas) {
-    this.cubeCanvas = cubeCanvas;
-
+  constructor() {
     this.pieces = [];
     for (let i = 0; i < 8; i++) {
-      const id: string = "C" + i; // 추후 prefix가 없어질 수 있음
+      const id: string = "C" + i;
       const newCorner: Corner = new Corner(id);
       this.pieces.push(newCorner);
     }
     for (let i = 0; i < 12; i++) {
-      const id: string = "E" + i; // 추후 prefix가 없어질 수 있음
+      const id: string = "E" + i;
       const newEdge: Edge = new Edge(id);
       this.pieces.push(newEdge);
     }
-
-    this._display();
   }
 
   getPiece(pos: string): Piece | undefined {
     return this.pieces.find(o => o.pos === pos);
   }
 
-  private _display(): void {
-    this.cubeCanvas.draw(4, 1, "W");
-    this.cubeCanvas.draw(1, 4, "O");
-    this.cubeCanvas.draw(4, 4, "G");
-    this.cubeCanvas.draw(7, 4, "R");
-    this.cubeCanvas.draw(10, 4, "B");
-    this.cubeCanvas.draw(4, 7, "Y");
-
-    for (const piece of this.pieces) {
-      for (let i = 0; i < ID_POS_MAP[piece.pos].length; i++) {
-        const pos = ID_POS_MAP[piece.pos][i];
-        const color = COLOR_MAP[piece.id][(i + piece.ori) % ID_POS_MAP[piece.pos].length];
-        this.cubeCanvas.draw(pos[0], pos[1], color);
-      }
-    }
-  }
-
-  private _rotate(rotation: string, before: string[], after: string[]): void {
+  private _rotate(rotation: string, before: string[], after: string[]): AffectedPieces {
     const movePieces: Piece[] = before.map(pos => {
       const piece = this.pieces.find(p => p.pos === pos);
       if (!piece) throw new Error(`Piece at ${pos} not found`);
       return piece;
     });
+
+    const clones: Piece[] = movePieces.map(o => o.clone());
     
     for (let i = 0; i < movePieces.length; i++) {
       const piece = movePieces[i];
@@ -54,10 +39,10 @@ class Cube {
       piece.moveTo(after[i], ori);
     }
 
-    this._display();
+    return { before: clones, after: movePieces };
   }
 
-  rotate(rotation: string): void {
+  rotate(rotation: string): AffectedPieces {
     let before: string[];
     let after: string[];
 
@@ -89,27 +74,7 @@ class Cube {
       default: throw new Error("Invalid rotation");
     }
 
-    this._rotate(rotation, before, after);
-  }
-
-  rotateAll(rotations: string, delay: number): void {
-    const rotationArray: string[] = rotations.split(" ");
-    for (let i = 0; i < rotationArray.length; i++) {
-      setTimeout(() => {
-        this.rotate(rotationArray[i]);
-      }, delay * i);
-    }
-  }
-
-  scramble(count: number, delay: number): void {
-    const rotations: string[] = ["R", "L", "F", "B", "U", "D"];
-
-    for (let i = 0; i < count; i++) {
-      setTimeout(() => {
-        const random: number = Math.floor(Math.random() * rotations.length);
-        this.rotate(rotations[random]);
-      }, delay * i);
-    }
+    return this._rotate(rotation, before, after);
   }
 
   isFit(): boolean {
